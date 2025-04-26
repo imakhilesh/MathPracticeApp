@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Math Practice - Master Basics</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#764ba2" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;700&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <div id="overlay"></div>
+
+  <div class="container">
+    
+    <!-- Welcome Screen -->
+    <div id="welcomeScreen" class="screen">
+      <h1>Welcome to Math Practice!</h1>
+      <p>
+        INSTA - 
+        <a href="https://instagram.com/akhileshthinks" target="_blank">@akhileshthinks</a>
+      </p>
+      <p>Choose what you want to practice:</p>
+
+      <div class="menu-buttons">
+        <button onclick="selectMode('addition')">Addition</button>
+        <button onclick="selectMode('subtraction')">Subtraction</button>
+        <button onclick="selectMode('multiplication')">Multiplication</button>
+        <button onclick="selectMode('division')">Division</button>
+
+        <!-- Link to Square Cube folder -->
+        <a href="Square Cube/index.html">
+          <button>Squares & Cubes</button>
+        </a>
+
+        <button onclick="selectMode('tables')">Tables</button>
+        <button onclick="selectMode('percentage')">Percentages</button>
+        <button onclick="selectMode('mixed')">Mixed</button>
+      </div>
+    </div>
+
+    <!-- Setup Screen -->
+    <div id="setupScreen" class="screen" style="display: none;">
+      <h2>Setup Your Practice</h2>
+
+      <!-- Digit Range Setup -->
+      <div id="digitRangeFields" style="display: none;">
+        <div class="input-group">
+          <label>First Number Digits:</label>
+          <select id="digitsA">
+            <option value="1">1-digit</option>
+            <option value="2">2-digit</option>
+            <option value="3" selected>3-digit</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label>Second Number Digits:</label>
+          <select id="digitsB">
+            <option value="1">1-digit</option>
+            <option value="2" selected>2-digit</option>
+            <option value="3">3-digit</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Normal Range Setup -->
+      <div id="normalRangeFields" style="display: none;">
+        <div class="input-group">
+          <label>Start Number:</label>
+          <input type="number" id="startRange" value="1" min="0" />
+        </div>
+        <div class="input-group">
+          <label>End Number:</label>
+          <input type="number" id="endRange" value="20" min="1" />
+        </div>
+      </div>
+
+      <!-- Common Setup -->
+      <div class="input-group">
+        <label>Skill Level:</label>
+        <select id="difficulty">
+          <option value="noob">Noob (5 min)</option>
+          <option value="beginner">Beginner (2 min)</option>
+          <option value="pro">Pro (1 min)</option>
+          <option value="advanced">Advanced (30 sec)</option>
+          <option value="god">God (10 sec)</option>
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label>Number of Questions:</label>
+        <select id="questionCount">
+          <option value="10">10</option>
+          <option value="20" selected>20</option>
+          <option value="50">50</option>
+        </select>
+      </div>
+
+      <button onclick="startGame()">Start Practice</button>
+      <button class="back-btn" onclick="backToWelcome()">Back</button>
+    </div>
+
+    <!-- Game Screen -->
+    <div id="gameScreen" class="screen" style="display: none;">
+      <div class="top-bar">
+        <div>Score: <span id="score">0</span></div>
+        <div>High Score: <span id="highScore">0</span></div>
+      </div>
+
+      <div class="progress-bar-container">
+        <div id="progressBar"></div>
+      </div>
+
+      <div class="progress-numbers">Progress: <span id="progressCount">0 / 0</span></div>
+
+      <div class="timer-bar-container">
+        <div id="timerBar"></div>
+      </div>
+
+      <div class="big-feedback" id="bigFeedback"></div>
+      <div class="question" id="question">?</div>
+
+      <input type="number" id="answerInput" placeholder="Type your answer" autofocus />
+      <button onclick="submitAnswer()">Submit</button>
+      <button class="back-btn" onclick="backToSetup()">Back</button>
+    </div>
+
+    <!-- End Screen -->
+    <div id="endScreen" class="screen" style="display: none;">
+      <h2>Practice Complete!</h2>
+      <p>Final Score: <span id="finalScore"></span></p>
+      <p>Accuracy: <span id="accuracy"></span>%</p>
+      <p>Average Time: <span id="avgTime"></span> sec/question</p>
+      <button onclick="playAgain()">Practice Again</button>
+      <button class="back-btn" onclick="backToWelcome()">Back to Home</button>
+    </div>
+  </div>
+
+  <!-- Sounds -->
+  <audio id="correctSound" src="files/correct-156911.mp3" preload="auto"></audio>
+  <audio id="wrongSound" src="files/wrong-47985.mp3" preload="auto"></audio>
+
+  <script src="script.js"></script>
+</body>
+</html>
