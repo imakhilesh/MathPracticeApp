@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fraction to Percentage Quiz Game</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Poppins', sans-serif;
+    }
+    body {
+      background: linear-gradient(135deg, #89f7fe, #66a6ff);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      overflow: hidden;
+      position: relative;
+    }
+    #overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: transparent;
+      z-index: 1;
+      pointer-events: none;
+      transition: background 0.3s ease;
+    }
+    .game-container {
+      position: relative;
+      z-index: 2;
+      background: #fff;
+      padding: 30px;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+      transition: transform 0.3s;
+    }
+    .question {
+      font-size: 24px;
+      margin-bottom: 15px;
+      color: #333;
+      font-weight: bold;
+    }
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .option {
+      background: #e0f7fa;
+      border: none;
+      padding: 14px;
+      font-size: 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+    .option:hover {
+      background: #b2ebf2;
+      transform: scale(1.05);
+    }
+    .score-board {
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+      font-weight: bold;
+    }
+    .progress-bar {
+      width: 100%;
+      background: #ddd;
+      height: 10px;
+      border-radius: 5px;
+      overflow: hidden;
+      margin-top: 20px;
+    }
+    .progress {
+      height: 100%;
+      width: 100%;
+      background: #00c853;
+      transition: width 0.1s linear;
+    }
+  </style>
+</head>
+<body>
+  <div id="overlay"></div>
+
+  <div class="game-container">
+    <div class="question">Loading...</div>
+    <div class="options"></div>
+    <div class="score-board">Score: 0 | High Score: 0 | Question: 0/0</div>
+    <div class="progress-bar">
+      <div class="progress"></div>
+    </div>
+  </div>
+
+  <audio id="correct-sound" src="files/correct-156911.mp3"preload="auto"></audio>
+  <audio id="wrong-sound" src="Files/wrong-47985.mp3"preload="auto"></audio>
+
+  <script>
+    const data = [
+      ["1/2", 50], ["2/3", 66.66], ["3/4", 75], ["5/6", 83.33], ["7/8", 87.5],
+      ["1/3", 33.33], ["1/4", 25], ["3/2", 150], ["5/2", 250], ["7/2", 350],
+      ["5/4", 125], ["7/4", 175], ["9/4", 225], ["2/5", 40], ["3/5", 60],
+      ["4/5", 80], ["1/6", 16.66], ["1/7", 14.28], ["2/7", 28.56], ["3/7", 42.84],
+      ["4/7", 57.13], ["5/7", 71.42], ["6/7", 85.71], ["1/8", 12.5], ["3/8", 37.5],
+      ["5/8", 62.5], ["1/9", 11.11], ["1/10", 10], ["1/11", 9.09], ["1/12", 8.33],
+      ["5/12", 41.66], ["7/12", 58.33], ["11/12", 91.66], ["1/13", 7.69],
+      ["2/13", 15.38], ["5/13", 38.46], ["6/13", 46.14], ["7/13", 53.83],
+      ["8/13", 61.52], ["10/13", 76.92], ["11/13", 84.61], ["12/13", 92.3],
+      ["1/14", 7.14], ["3/14", 21.42], ["5/14", 35.71], ["7/15", 46.66],
+      ["8/15", 53.33], ["11/15", 73.33], ["14/15", 93.33], ["1/16", 6.25],
+      ["3/16", 18.75], ["5/16", 31.25], ["7/16", 43.75], ["9/16", 56.25],
+      ["13/16", 81.25], ["15/16", 93.75], ["1/18", 5.55], ["1/19", 5.26],
+      ["1/20", 5], ["1/21", 4.76], ["1/23", 4.34], ["1/24", 4.166], ["1/40", 2.5],
+      ["3/40", 7.5], ["9/40", 22.5], ["11/40", 27.5], ["13/40", 32.5],
+      ["19/40", 47.5], ["21/40", 52.5], ["23/40", 57.5], ["27/40", 67.5],
+      ["1/50", 2], ["1/100", 1]
+    ];
+
+    let questions = [...data];
+    let totalQuestions = questions.length;
+    let currentQuestionNumber = 0;
+    let score = 0;
+    let highScore = localStorage.getItem('highScore') || 0;
+    let timer;
+
+    const questionEl = document.querySelector('.question');
+    const optionsEl = document.querySelector('.options');
+    const scoreBoard = document.querySelector('.score-board');
+    const progress = document.querySelector('.progress');
+    const overlay = document.getElementById('overlay');
+
+    const correctSound = document.getElementById('correct-sound');
+    const wrongSound = document.getElementById('wrong-sound');
+
+    function startGame() {
+      score = 0;
+      shuffleArray(questions);
+      nextQuestion();
+    }
+
+    function shuffleArray(array) {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+    }
+
+    function nextQuestion() {
+      if (questions.length === 0) {
+        alert('Game Over! Final Score: ' + score);
+        if (score > highScore) {
+          localStorage.setItem('highScore', score);
+        }
+        location.reload();
+        return;
+      }
+
+      let current = questions.pop();
+      currentQuestionNumber++;
+      questionEl.textContent = `Fraction for ${current[1]}%?`;
+      updateScore();
+
+      let options = [current[0]];
+      while (options.length < 4) {
+        let random = data[Math.floor(Math.random() * data.length)][0];
+        if (!options.includes(random)) {
+          options.push(random);
+        }
+      }
+      shuffleArray(options);
+
+      optionsEl.innerHTML = '';
+      options.forEach(opt => {
+        const button = document.createElement('button');
+        button.classList.add('option');
+        button.textContent = opt;
+        button.onclick = () => selectAnswer(opt, current[0]);
+        optionsEl.appendChild(button);
+      });
+
+      resetTimer();
+    }
+
+    function selectAnswer(selected, correct) {
+      clearInterval(timer);
+      if (selected === correct) {
+        score++;
+        correctSound.play();
+        overlay.style.background = 'rgba(102, 255, 102, 0.7)';
+      } else {
+        score--;
+        wrongSound.play();
+        overlay.style.background = 'rgba(255, 102, 102, 0.7)';
+      }
+      updateScore();
+      setTimeout(() => {
+        overlay.style.background = 'transparent';
+        nextQuestion();
+      }, 500);
+    }
+
+    function updateScore() {
+      highScore = Math.max(highScore, score);
+      scoreBoard.textContent = `Score: ${score} | High Score: ${highScore} | Question: ${currentQuestionNumber}/${totalQuestions}`;
+    }
+
+    function resetTimer() {
+      let timeLeft = 100;
+      progress.style.width = '100%';
+      clearInterval(timer);
+      timer = setInterval(() => {
+        timeLeft -= 1;
+        progress.style.width = timeLeft + '%';
+        if (timeLeft <= 0) {
+          clearInterval(timer);
+          score--;
+          wrongSound.play();
+          overlay.style.background = 'rgba(255, 102, 102, 0.4)';
+          updateScore();
+          setTimeout(() => {
+            overlay.style.background = 'transparent';
+            nextQuestion();
+          }, 500);
+        }
+      }, 100);
+    }
+
+    startGame();
+  </script>
+</body>
+</html>
